@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Plinko Game
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app). The Plinko Game is a fun and interactive game where players drop disks into a board filled with pegs and scoring buckets.
 
 ## Getting Started
 
@@ -18,7 +20,57 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Game Instructions
+
+1. Click on the game board to drop a disk into one of the columns.
+2. The disk will bounce off the pegs and land in one of the scoring buckets at the bottom.
+3. Each bucket has a score value, which will be added to your total score.
+4. You have 10 disks to drop. The game ends when all disks have been used.
+5. Your final score will be displayed at the end of the game.
+
+## Features
+
+- Interactive game board with physics-based mechanics using [Matter.js](https://brm.io/matter-js/).
+- Randomized scoring buckets with positive and zero values.
+- Responsive design that works on various screen sizes.
+- Simple and intuitive user interface.
+
+## Dependencies
+
+### Required Dependencies
+
+- `@radix-ui/react-slot`: ^1.1.2
+- `class-variance-authority`: ^0.7.1
+- `clsx`: ^2.1.1
+- `lucide-react`: ^0.477.0
+- `next`: 15.2.0
+- `react`: ^19.0.0
+- `react-dom`: ^19.0.0
+- `tailwind-merge`: ^3.0.2
+- `tailwindcss-animate`: ^1.0.7
+
+### Development Dependencies
+
+- `@tailwindcss/postcss`: ^4
+- `tailwindcss`: ^4
+
+## Future Enhancements
+
+### Planned Features
+
+- **User Login**: Implement a user authentication system to allow players to create accounts and log in.
+- **Shopping Cart**: Set up a shopping cart feature to allow users to add funds for gameplay.
+- **Bet Value Assignment**: Assign a bet value for each disk dropped, adding a layer of strategy to the game.
+- **Dynamic Scoring**: Assign dynamic values for the gold tiles based on the bet value, enhancing the gameplay experience.
+- **Database Integration**: Set up databases for managing transactions, user accounts, and user metadata to track gameplay and scores.
+- **Leaderboard**: Create a leaderboard to display the top-scoring players and their scores.
+- **Share-Button**: Players will have the option to share their win on social media.
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## Learn More
 
@@ -28,9 +80,3 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
