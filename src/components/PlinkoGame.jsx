@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import Matter from "matter-js"
 import { Button } from "@/components/ui/button"
 
@@ -14,6 +14,99 @@ export default function PlinkoGame() {
   const [gameActive, setGameActive] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [bucketValues, setBucketValues] = useState([])
+
+  const handleBucketCollision = useCallback(
+    (disk, bucket) => {
+      const bucketIndex = Number.parseInt(bucket.label.split("-")[1])
+      const points = bucketValues[bucketIndex] || 0
+      setScore((prevScore) => {
+        console.log(`Adding ${points} to previous score ${prevScore}`)
+        return prevScore + points
+      })
+
+      // Remove the disk after scoring
+      setTimeout(() => {
+        Matter.Composite.remove(engineRef.current.world, disk)
+      }, 500)
+    },
+    [bucketValues],
+  )
+
+  const handleCollision = useCallback(
+    (event) => {
+      const pairs = event.pairs
+
+      for (let i = 0; i < pairs.length; i++) {
+        const { bodyA, bodyB } = pairs[i]
+
+        // Check if a disk hit a scoring bucket
+        if (bodyA.label === "disk" && bodyB.label.startsWith("bucket-")) {
+          handleBucketCollision(bodyA, bodyB)
+        } else if (bodyB.label === "disk" && bodyA.label.startsWith("bucket-")) {
+          handleBucketCollision(bodyB, bodyA)
+        }
+
+        // Check if a disk hit a peg
+        if ((bodyA.label === "disk" && bodyB.label === "peg") || (bodyB.label === "disk" && bodyA.label === "peg")) {
+          handlePegCollision(bodyA.label === "disk" ? bodyA : bodyB, bodyA.label === "peg" ? bodyA : bodyB, pairs[i])
+        }
+
+        // Check if two disks collided
+        if (bodyA.label === "disk" && bodyB.label === "disk") {
+          handleDiskCollision(bodyA, bodyB)
+        }
+      }
+    },
+    [handleBucketCollision],
+  )
+
+  const handleDiskCollision = (diskA, diskB) => {
+    const yDifference = diskA.position.y - diskB.position.y
+    const xDifference = Math.abs(diskA.position.x - diskB.position.x)
+
+    // Check if one disk is directly above the other (with some tolerance)
+    if (Math.abs(yDifference) > 10 && xDifference < 5) {
+      const upperDisk = yDifference < 0 ? diskA : diskB
+      const lowerDisk = yDifference < 0 ? diskB : diskA
+
+      // Apply a downward force to the upper disk
+      const forceMagnitude = 0.001
+      Matter.Body.applyForce(upperDisk, upperDisk.position, { x: 0, y: forceMagnitude })
+
+      // Apply an upward force to the lower disk (smaller magnitude)
+      Matter.Body.applyForce(lowerDisk, lowerDisk.position, { x: 0, y: -forceMagnitude * 0.5 })
+    }
+  }
+
+  const handlePegCollision = (disk, peg, pair) => {
+    const collisionPoint = pair.collision.supports[0]
+    const pegCenter = peg.position
+    const distanceFromCenter = Matter.Vector.magnitude(Matter.Vector.sub(collisionPoint, pegCenter))
+
+    // Check if this is the top-middle peg
+    const isTopMiddlePeg = peg.position.y === 150 && Math.abs(peg.position.x - 300) < 5
+
+    if (isTopMiddlePeg && distanceFromCenter < 2) {
+      // For the top-middle peg, spring left or right randomly
+      const direction = Math.random() < 0.5 ? -1 : 1
+      const forceMagnitude = 0.002 // Increased force for more noticeable effect
+      const force = { x: direction * forceMagnitude, y: 0 }
+      Matter.Body.applyForce(disk, disk.position, force)
+    } else if (distanceFromCenter < 2) {
+      // For other pegs, use the previous logic
+      const direction = Matter.Vector.normalise(Matter.Vector.sub(disk.position, pegCenter))
+      const forceMagnitude = 0.0005
+      const force = Matter.Vector.mult(direction, forceMagnitude)
+
+      const randomForce = {
+        x: (Math.random() - 0.5) * 0.0001,
+        y: (Math.random() - 0.5) * 0.0001,
+      }
+      const totalForce = Matter.Vector.add(force, randomForce)
+
+      Matter.Body.applyForce(disk, disk.position, totalForce)
+    }
+  }
 
   // Initialize the physics engine and renderer
   useEffect(() => {
@@ -49,63 +142,32 @@ export default function PlinkoGame() {
     // Create the game board
     createGameBoard(engine)
 
-    // Event listener for when disks hit the bottom
-    Matter.Events.on(engine, "collisionStart", (event) => {
-      event.pairs.forEach((pair) => {
-        const { bodyA, bodyB } = pair
-
-        // Check if a disk hit a scoring bucket
-        if (bodyA.label === "disk" && bodyB.label.startsWith("bucket-")) {
-          const bucketIndex = parseInt(bodyB.label.split("-")[1])
-          const points = bucketValues[bucketIndex]
-          setScore((prevScore) => prevScore + points)
-
-          // Remove the disk after scoring
-          setTimeout(() => {
-            Matter.World.remove(engine.world, bodyA)
-          }, 500)
-        } else if (bodyB.label === "disk" && bodyA.label.startsWith("bucket-")) {
-          const bucketIndex = parseInt(bodyA.label.split("-")[1])
-          const points = bucketValues[bucketIndex]
-          setScore((prevScore) => prevScore + points)
-
-          // Remove the disk after scoring
-          setTimeout(() => {
-            Matter.World.remove(engine.world, bodyB)
-          }, 500)
-        }
-      })
-    })
+    // Event listener for collisions
+    Matter.Events.on(engine, "collisionStart", handleCollision)
 
     return () => {
       // Clean up
       if (renderRef.current) Matter.Render.stop(renderRef.current)
       if (runnerRef.current) Matter.Runner.stop(runnerRef.current)
-      if (engineRef.current) Matter.World.clear(engineRef.current.world, false)
-      Matter.Events.off(engineRef.current)
-    }
-  }, [bucketValues])
-
-  // Generate random bucket values
-  const generateBucketValues = () => {
-    const values = new Array(9).fill(0);
-    const positiveIndices = [];
-    
-    // Select 3 random indices for positive values
-    while (positiveIndices.length < 3) {
-      const index = Math.floor(Math.random() * 9);
-      if (!positiveIndices.includes(index)) {
-        positiveIndices.push(index);
+      if (engineRef.current) {
+        Matter.World.clear(engineRef.current.world, false)
+        Matter.Events.off(engineRef.current, "collisionStart", handleCollision)
       }
     }
-    
-    // Assign positive values to the selected indices
-    positiveIndices.forEach(index => {
-      values[index] = Math.floor(Math.random() * 10001); // 0 to 10000
-    });
-    
-    setBucketValues(values);
-  };
+  }, [handleCollision])
+
+  // Generate random bucket values
+  const generateBucketValues = useCallback(() => {
+    const values = new Array(9).fill(0)
+    const goldBuckets = [1, 4, 7] // 2nd, 5th, and 8th buckets (0-indexed)
+
+    // Assign random positive values to the gold buckets
+    goldBuckets.forEach((index) => {
+      values[index] = Math.floor(Math.random() * 9001) + 1000 // 1000 to 10000
+    })
+
+    setBucketValues(values)
+  }, [])
 
   // Create the game board with pegs, walls, and scoring buckets
   const createGameBoard = (engine) => {
@@ -116,7 +178,7 @@ export default function PlinkoGame() {
     const wallThickness = 20
 
     // Create walls with spring physics
-    const leftWall = createSpringWall(
+    createSpringWall(
       -wallThickness / 2,
       height / 2,
       wallThickness,
@@ -125,7 +187,7 @@ export default function PlinkoGame() {
       world,
     )
 
-    const rightWall = createSpringWall(
+    createSpringWall(
       width + wallThickness / 2,
       height / 2,
       wallThickness,
@@ -153,6 +215,7 @@ export default function PlinkoGame() {
           pegRadius,
           {
             isStatic: true,
+            label: "peg",
             restitution: 0.5,
             friction: 0.05,
             render: { fillStyle: "#f8fafc" },
@@ -181,22 +244,17 @@ export default function PlinkoGame() {
 
     // Create the actual buckets with score values
     for (let i = 0; i < bucketCount; i++) {
-      const bucket = Matter.Bodies.rectangle(
-        i * bucketWidth + bucketWidth / 2,
-        bucketY,
-        bucketWidth,
-        bucketHeight,
-        { 
-          isStatic: true, 
-          label: `bucket-${i}`,
-          render: { 
-            fillStyle: bucketValues[i] > 0 ? '#fbbf24' : '#4c1d95', // Gold for positive values, purple for zero
-            lineWidth: 1,
-            strokeStyle: '#a855f7'
-          }
-        }
-      );
-      buckets.push(bucket);
+      const isGoldBucket = [1, 4, 7].includes(i) // 2nd, 5th, and 8th buckets (0-indexed)
+      const bucket = Matter.Bodies.rectangle(i * bucketWidth + bucketWidth / 2, bucketY, bucketWidth, bucketHeight, {
+        isStatic: true,
+        label: `bucket-${i}`,
+        render: {
+          fillStyle: isGoldBucket ? "#fbbf24" : "#4c1d95", // Gold for 2nd, 5th, and 8th buckets, purple for others
+          lineWidth: 1,
+          strokeStyle: "#a855f7",
+        },
+      })
+      buckets.push(bucket)
     }
 
     // Add all objects to the world
@@ -228,7 +286,7 @@ export default function PlinkoGame() {
       render: { visible: false },
     })
 
-    Matter.World.add(world, [wall, topSpring, bottomSpring])
+    Matter.Composite.add(world, [wall, topSpring, bottomSpring])
     return wall
   }
 
@@ -247,6 +305,11 @@ export default function PlinkoGame() {
       friction: 0.05,
       frictionAir: 0.01,
       density: 0.002,
+      collisionFilter: {
+        group: 0,
+        category: 0x0002,
+        mask: 0xffffffff,
+      },
       render: {
         fillStyle: "#f59e0b",
         strokeStyle: "#fbbf24",
@@ -254,7 +317,7 @@ export default function PlinkoGame() {
       },
     })
 
-    Matter.World.add(engineRef.current.world, disk)
+    Matter.Composite.add(engineRef.current.world, disk)
     setDisksRemaining((prev) => prev - 1)
 
     if (disksRemaining === 1) {
@@ -290,7 +353,7 @@ export default function PlinkoGame() {
       const bodies = Matter.Composite.allBodies(engineRef.current.world)
       bodies.forEach((body) => {
         if (body.label === "disk") {
-          Matter.World.remove(engineRef.current.world, body)
+          Matter.Composite.remove(engineRef.current.world, body)
         }
       })
     }
@@ -304,10 +367,10 @@ export default function PlinkoGame() {
       </div>
 
       <div className="relative">
-        <canvas 
-          ref={canvasRef} 
-          width={600} 
-          height={700} 
+        <canvas
+          ref={canvasRef}
+          width={600}
+          height={700}
           className="border-2 border-purple-700 rounded-lg cursor-pointer"
           onClick={handleCanvasClick}
         />
@@ -317,10 +380,10 @@ export default function PlinkoGame() {
           {bucketValues.map((value, index) => (
             <div
               key={index}
-              className={`text-xs font-bold ${value > 0 ? 'text-yellow-300' : 'text-white'}`}
-              style={{width: '66px', textAlign: 'center'}}
+              className={`text-xs font-bold ${[1, 4, 7].includes(index) ? "text-yellow-300" : "text-white"}`}
+              style={{ width: "66px", textAlign: "center" }}
             >
-              {value > 0 ? `$${value}` : <span className="font-bold">ZERO</span>}
+              {[1, 4, 7].includes(index) ? `$${value}` : <span className="font-bold">ZERO</span>}
             </div>
           ))}
         </div>
@@ -344,11 +407,8 @@ export default function PlinkoGame() {
         )}
       </div>
 
-      {gameActive && (
-        <div className="mt-4 text-white text-center">
-          Click on the game board to drop a disk
-        </div>
-      )}
+      {gameActive && <div className="mt-4 text-white text-center">Click on the game board to drop a disk</div>}
     </div>
   )
 }
+
