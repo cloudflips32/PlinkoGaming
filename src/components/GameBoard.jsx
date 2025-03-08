@@ -1,21 +1,7 @@
 import Matter from "matter-js"
-import { createSpringWall } from "@/utils/physics"
-
-/**
- * The GameBoard object is responsible for creating and managing the game board.
- * It includes methods for creating walls, pegs, buckets, and dividers.
- *
- * @typedef {Object} GameBoard
- * @property {Function} create - A function to create the game board.
- */
+import { createSpringWall } from "../utils/physics"
 
 const GameBoard = {
-  /**
-   * Creates the game board by adding walls, pegs, buckets, and dividers to the Matter.js world.
-   *
-   * @param {Matter.Engine} engine - The Matter.js engine.
-   */
-
   create: (engine) => {
     const world = engine.world
     const width = 600
@@ -23,6 +9,7 @@ const GameBoard = {
     const pegRadius = 6
     const wallThickness = 20
 
+    // Create walls
     createSpringWall(
       -wallThickness / 2,
       height / 2,
@@ -40,22 +27,16 @@ const GameBoard = {
       world,
     )
 
+    // Create pegs
     const pegs = createPegs(width, height, pegRadius)
 
+    // Create buckets and dividers
     const { buckets, dividers } = createBucketsAndDividers(width, height)
 
+    // Add all objects to the world
     Matter.Composite.add(world, [...pegs, ...buckets, ...dividers])
   },
 }
-
-/**
- * Creates an array of peg bodies for the game board.
- *
- * @param {number} width - The width of the game board.
- * @param {number} height - The height of the game board.
- * @param {number} pegRadius - The radius of each peg.
- * @returns {Matter.Body[]} An array of peg bodies.
- */
 
 function createPegs(width, height, pegRadius) {
   const pegs = []
@@ -88,14 +69,6 @@ function createPegs(width, height, pegRadius) {
 
   return pegs
 }
-
-/**
- * Creates an object containing arrays of bucket and divider bodies for the game board.
- *
- * @param {number} width - The width of the game board.
- * @param {number} height - The height of the game board.
- * @returns {Object} An object with arrays of bucket and divider bodies.
- */
 
 function createBucketsAndDividers(width, height) {
   const buckets = []

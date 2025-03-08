@@ -4,26 +4,12 @@ import { useState, useCallback } from "react"
 import Matter from "matter-js"
 import { handlePegCollision, handleDiskCollision } from "../utils/physics"
 
-/**
- * A custom React hook that manages the game logic for a Plinko game using the Matter.js physics engine.
- *
- * @param {React.MutableRefObject<Matter.Engine>} engineRef - A reference to the Matter.js engine instance.
- * @returns {Object} An object containing various game state and logic functions.
- */
-
 export default function useGameLogic(engineRef) {
   const [score, setScore] = useState(0)
   const [disksRemaining, setDisksRemaining] = useState(10)
   const [gameActive, setGameActive] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [bucketValues, setBucketValues] = useState([])
-
-  /**
-   * Handles the collision between a disk and a bucket.
-   *
-   * @param {Matter.Body} disk - The disk body.
-   * @param {Matter.Body} bucket - The bucket body.
-   */
 
   const handleBucketCollision = useCallback(
     (disk, bucket) => {
@@ -39,12 +25,6 @@ export default function useGameLogic(engineRef) {
     },
     [bucketValues, engineRef],
   )
-
-  /**
-   * Handles all collisions in the game.
-   *
-   * @param {Matter.Events.Event} event - The collision event.
-   */
 
   const handleCollision = useCallback(
     (event) => {
@@ -70,10 +50,6 @@ export default function useGameLogic(engineRef) {
     [handleBucketCollision],
   )
 
-  /**
-   * Generates random values for the golden buckets.
-   */
-
   const generateBucketValues = useCallback(() => {
     const values = new Array(9).fill(0)
     const goldBuckets = [1, 4, 7]
@@ -82,10 +58,6 @@ export default function useGameLogic(engineRef) {
     })
     setBucketValues(values)
   }, [])
-
-  /**
-   * Starts a new game by resetting the game state and generating new bucket values.
-   */
 
   const startGame = useCallback(() => {
     setScore(0)
@@ -104,12 +76,6 @@ export default function useGameLogic(engineRef) {
     }
   }, [generateBucketValues, engineRef])
 
-  /**
-   * Drops a disk from a specific column.
-   *
-   * @param {number} columnIndex - The index of the column where the disk should be dropped.
-   */
-  
   const dropDisk = useCallback(
     (columnIndex) => {
       if (disksRemaining <= 0 || !engineRef.current) return
@@ -130,14 +96,17 @@ export default function useGameLogic(engineRef) {
       })
 
       Matter.Composite.add(engineRef.current.world, disk)
-      setDisksRemaining((prev) => prev - 1)
-
-      if (disksRemaining === 1) {
-        setTimeout(() => {
-          setGameOver(true)
-          setGameActive(false)
-        }, 5000)
-      }
+      setDisksRemaining((prev) => {
+        const newValue = prev - 1
+        // Check if this was the last disk
+        if (newValue === 0) {
+          setTimeout(() => {
+            setGameOver(true)
+            setGameActive(false)
+          }, 10000) // Increased to 10 seconds
+        }
+        return newValue
+      })
     },
     [disksRemaining, engineRef],
   )
@@ -153,5 +122,4 @@ export default function useGameLogic(engineRef) {
     dropDisk,
   }
 }
-
 
