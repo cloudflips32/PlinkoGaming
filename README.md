@@ -63,7 +63,7 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 - **Bet Value Assignment**: Assign a bet value for each disk dropped, adding a layer of strategy to the game.
 - **Dynamic Scoring**: Assign dynamic values for the gold tiles based on the bet value, enhancing the gameplay experience.
 - **Database Integration**: Set up databases for managing transactions, user accounts, and user metadata to track gameplay and scores.
-  ~~- **Leaderboard**: Create a leaderboard to display the top-scoring players and their scores.~~ Completed 03/08
+- ~~**Leaderboard**: Create a leaderboard to display the top-scoring players and their scores.~~ Completed 03/08
 - **Share-Button**: Players will have the option to share their win on social media.
 
 ## Deploy on Vercel
