@@ -81,7 +81,7 @@ export default function useGameLogic(engineRef) {
       if (disksRemaining <= 0 || !engineRef.current) return
 
       const width = 600
-      const diskRadius = 15
+      const diskRadius = 11
       const columnWidth = width / 9
       const dropX = columnWidth * columnIndex + columnWidth / 2
 

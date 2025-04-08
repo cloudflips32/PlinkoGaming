@@ -5,10 +5,10 @@ export default function BucketValues ({ bucketValues }) {
         {bucketValues.map((value, index) => (
           <div
             key={index}
-            className={`text-xs font-bold ${[1, 4, 7].includes(index) ? "text-yellow-300" : "text-white"}`}
+            className={`text-xs font-bold ml-1 mb-3 ${[1, 4, 7].includes(index) ? "text-black" : "text-white"}`}
             style={{ width: "66px", textAlign: "center" }}
           >
-            {[1, 4, 7].includes(index) ? `$${value}` : <span className="font-bold">ZERO</span>}
+            {[1, 4, 7].includes(index) ? `$${value}` : <span className="text-xs font-bold">ZERO</span>}
           </div>
         ))}
       </div>

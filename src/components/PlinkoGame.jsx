@@ -30,7 +30,7 @@ export default function PlinkoGame() {
       canvas: canvasRef.current,
       engine: engine,
       options: {
-        width: 600,
+        width: 375,
         height: 700,
         wireframes: false,
         background: "#1a103c",
@@ -77,7 +77,7 @@ export default function PlinkoGame() {
       <div className="relative">
         <canvas
           ref={canvasRef}
-          width={600}
+          width={360}
           height={700}
           className="border-2 border-purple-700 rounded-lg cursor-pointer"
           onClick={handleCanvasClick}

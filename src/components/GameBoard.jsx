@@ -4,7 +4,7 @@ import { createSpringWall } from "../utils/physics"
 const GameBoard = {
   create: (engine) => {
     const world = engine.world
-    const width = 600
+    const width = 380
     const height = 700
     const pegRadius = 6
     const wallThickness = 20
