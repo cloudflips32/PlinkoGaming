@@ -1,3 +1,10 @@
+[![Next](https://img.shields.io/badge/NextJS-v15.2.0-blue.svg?logo=next.js)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-v19-teal.svg?logo=react)](https://react.dev)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind%20CSS-v4-lightblue.svg?logo=tailwindcss)](https://nextjs.org)
+[![Firebase](https://img.shields.io/badge/Firebase-v11.6.0-orange.svg?logo=firebase&logoColor=orange)](https://firebase.google.com)
+
+---
+
 # Plinko Game
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app). The Plinko Game is a fun and interactive game where players drop disks into a board filled with pegs and scoring buckets.
