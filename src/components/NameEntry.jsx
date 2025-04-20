@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Volume2, VolumeX } from "lucide-react"
+import { db } from "@/config/FirebaseConfig"
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 
 export default function NameEntry({ score, onSave, onSkip }) {
   const [name, setName] = useState(["", "", ""])
@@ -38,6 +40,7 @@ export default function NameEntry({ score, onSave, onSkip }) {
 
       // Try to play after a short delay
       const timer = setTimeout(playAudio, 500)
+
 
       return () => {
         clearTimeout(timer)
@@ -150,22 +153,6 @@ export default function NameEntry({ score, onSave, onSkip }) {
     }
   }
 
-  const handleSave = () => {
-    const fullName = name.join("")
-    if (fullName.length === 3) {
-      // Stop the audio before saving
-      try {
-        if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.currentTime = 0
-        }
-      } catch (err) {
-        console.error("Audio stop error:", err)
-      }
-      onSave(fullName)
-    }
-  }
-
   const handleSkip = () => {
     // Stop the audio before skipping
     try {
@@ -177,6 +164,35 @@ export default function NameEntry({ score, onSave, onSkip }) {
       console.error("Audio stop error:", err)
     }
     onSkip()
+  }
+
+  const handleSave = async () => {
+    const fullName = name.join("")
+    if (fullName.length === 3) {
+      // Stop the audio before saving
+      try {
+        if (audioRef.current) {
+          audioRef.current.pause()
+          audioRef.current.currentTime = 0
+        }
+      } catch (err) {
+        console.error("Audio stop error:", err)
+      }
+  
+      try {
+        // Save to Firebase
+        await addDoc(collection(db, "high_scores"), {
+          "player-initials": fullName,
+          score: score,
+          timestamp: serverTimestamp(),
+        })
+        console.log("High score saved successfully!")
+      } catch (err) {
+        console.error("Error saving high score:", err)
+      }
+  
+      onSave(fullName)
+    }
   }
 
   return (
