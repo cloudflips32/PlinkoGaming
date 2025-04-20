@@ -62,7 +62,7 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 - **Shopping Cart**: Set up a shopping cart feature to allow users to add funds for gameplay.
 - **Bet Value Assignment**: Assign a bet value for each disk dropped, adding a layer of strategy to the game.
 - **Dynamic Scoring**: Assign dynamic values for the gold tiles based on the bet value, enhancing the gameplay experience.
-- **Database Integration**: Set up databases for managing transactions, user accounts, and user metadata to track gameplay and scores.
+- ~~**Database Integration**: Set up databases to track gameplay, player feedback and scores.~~ Completed 04/20
 - ~~**Leaderboard**: Create a leaderboard to display the top-scoring players and their scores.~~ Completed 03/08
 - **Share-Button**: Players will have the option to share their win on social media.
 
