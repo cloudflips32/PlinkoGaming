@@ -60,7 +60,7 @@ export default function Header({ onOpenLeaderboard }) {
 
   return (
     <>
-      <header className="w-full max-w-[95vw] mb-4 bg-transparent px-4 py-2 rounded-lg">
+      <header className="w-full max-w-[95vw] mb-4 px-4 py-2 rounded-lg bg-gradient-to-b from-blue-900 to-purple-900 ">
         <nav className="flex flex-col items-center w-full">
           <div className="flex justify-evenly items-center w-full">
             <Button

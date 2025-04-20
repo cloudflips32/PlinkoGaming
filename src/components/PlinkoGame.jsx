@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Matter from "matter-js"
 import GameBoard from "./GameBoard"
 import ScoreDisplay from "./ScoreDisplay"
@@ -14,6 +14,7 @@ import useLeaderboard from "../hooks/useLeaderboard"
 export default function PlinkoGame() {
   const canvasRef = useRef(null)
   const engineRef = useRef(null)
+  const [isGameLoaded, setIsGameLoaded] = useState(false)
 
   const { score, disksRemaining, gameActive, gameOver, bucketValues, handleCollision, startGame, dropDisk } =
     useGameLogic(engineRef)
@@ -45,6 +46,8 @@ export default function PlinkoGame() {
 
     Matter.Events.on(engine, "collisionStart", handleCollision)
 
+    setIsGameLoaded(true)
+
     return () => {
       Matter.Render.stop(render)
       Matter.Runner.stop(runner)
@@ -54,7 +57,7 @@ export default function PlinkoGame() {
   }, [handleCollision])
 
   const handleCanvasClick = (event) => {
-    if (!gameActive || disksRemaining <= 0) return
+    if (!gameActive || disksRemaining <= 0 || !isGameLoaded) return
 
     const canvasRect = canvasRef.current.getBoundingClientRect()
     const clickX = event.clientX - canvasRect.left
@@ -69,7 +72,8 @@ export default function PlinkoGame() {
   }
 
   return (
-    <div className="flex flex-col items-center border-2 border-purple-700 rounded-lg p-4 bg-gradient-to-b from-purple-900 to-purple-800 text-black">
+    <div className="flex flex-col items-center border-2 border-purple-700 rounded-lg p-4 bg-gradient-to-b from-purple-900 to-purple-800 text-black opacity-97">
+      
       <Header onOpenLeaderboard={openLeaderboard} />
 
       <ScoreDisplay score={score} disksRemaining={disksRemaining} />
@@ -79,7 +83,7 @@ export default function PlinkoGame() {
           ref={canvasRef}
           width={360}
           height={700}
-          className="border-2 border-purple-700 rounded-lg cursor-pointer"
+          className="relative border-2 border-purple-700 rounded-lg cursor-pointer"
           onClick={handleCanvasClick}
         />
 
