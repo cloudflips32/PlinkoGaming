@@ -69,7 +69,7 @@ export default function PlinkoGame() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center border-2 border-purple-700 rounded-lg p-4 bg-gradient-to-b from-purple-900 to-purple-800 text-black">
       <Header onOpenLeaderboard={openLeaderboard} />
 
       <ScoreDisplay score={score} disksRemaining={disksRemaining} />

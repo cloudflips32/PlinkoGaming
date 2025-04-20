@@ -60,23 +60,24 @@ export default function Header({ onOpenLeaderboard }) {
 
   return (
     <>
-      <header className="w-full max-w-[95vw] flex mb-4 bg-transparent px-4 py-2 rounded-lg">
-        <div className="flex items-center justify-center w-full">
-          <Image src="/Plinko_Thumbnail.jpg" width={80} height={80} alt="logo" />
-        </div>
-        <div className="flex space-x-2 items-center space-between w-full">
-          <h1 className="text-2xl font-bold text-yellow-300">        </h1>
-          <Button
-            className="gap-2 bg-purple-700 hover:bg-purple-800 text-yellow-300 border-none transition duration-300 ease-in-out"
-            onClick={handleOpenLeaderboard}
-          >
-            <Trophy size={18} className="text-yellow-300" />
-            Leaderboard
-          </Button>
-          <Button onClick={handleRateMeClick} className="ml-2">
-            Rate Me
-          </Button>
-        </div>
+      <header className="w-full max-w-[95vw] mb-4 bg-transparent px-4 py-2 rounded-lg">
+        <nav className="flex flex-col items-center w-full">
+          <div className="flex justify-evenly items-center w-full">
+            <Button
+              className="bg-purple-700 hover:bg-purple-800 text-yellow-300 border-none transition duration-300 ease-in-out"
+              onClick={handleOpenLeaderboard}
+            >
+              <Trophy size={18} className="text-yellow-300" />
+              Leaderboard
+            </Button>
+            <div className="mx-12 ml-8">
+              <Image src="/Plinko_Thumbnail.jpg" width={40} height={40} alt="logo" />
+            </div>
+            <Button onClick={handleRateMeClick}>
+              Rate Me
+            </Button>
+          </div>
+        </nav>
       </header>
 
       {/* Rating Dialog */}
